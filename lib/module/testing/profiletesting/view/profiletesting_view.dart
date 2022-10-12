@@ -1,4 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:fhe_template/module/testing/devHome/view/devHome_view.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -192,9 +193,15 @@ class ProfiletestingingView extends ConsumerWidget {
                 builder: (context) {
                   List items = [
                     {
-                      "label": "Addresses",
-                      "icon": Icons.pin_drop,
-                      "on_tap": () {}
+                      "label": "My Shop",
+                      "icon": Icons.shop_2,
+                      "on_tap": () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                              builder: (context) => const DevHomeView()),
+                        );
+                      }
                     },
                     {
                       "label": "Referral code",

@@ -11,7 +11,10 @@
         "conten/welcomeSliderScreen",
         "testing/testingWidget",
         "testing/profiletesting",
-        "testing/addProduct"
+        "testing/addProduct",
+        "testing/cart",
+        "testing/order_list",
+        "testing/checkout"
 
     ]
 }

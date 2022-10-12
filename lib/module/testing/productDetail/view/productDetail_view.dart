@@ -1,3 +1,4 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:fhe_template/model/product/product.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -30,6 +31,15 @@ class ProductDetailView extends ConsumerWidget {
             ),
           ),
         ],
+        leading: IconButton(
+          onPressed: () {
+            controller.isRemoveQty();
+          },
+          icon: const Icon(
+            Icons.arrow_back,
+            size: 24.0,
+          ),
+        ),
       ),
       body: SingleChildScrollView(
         child: Column(
@@ -40,7 +50,7 @@ class ProductDetailView extends ConsumerWidget {
                   height: MediaQuery.of(context).size.height * 0.4,
                   decoration: BoxDecoration(
                     image: DecorationImage(
-                      image: NetworkImage(
+                      image: CachedNetworkImageProvider(
                         "${item.photo}",
                       ),
                       fit: BoxFit.cover,
@@ -226,9 +236,11 @@ class ProductDetailView extends ConsumerWidget {
                     borderRadius: BorderRadius.circular(12), // <-- Radius
                   ),
                 ),
-                onPressed: () {},
+                onPressed: () {
+                  controller.addtoCart();
+                },
                 child: const Text(
-                  "Buy Now",
+                  "Add to Cart",
                   style: TextStyle(
                     color: Colors.white,
                     fontWeight: FontWeight.bold,

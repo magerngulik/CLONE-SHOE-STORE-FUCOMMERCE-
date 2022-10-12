@@ -57,7 +57,8 @@ class _QTextfieldLoginEmailState extends State<QTextfieldLoginEmail>
 
   @override
   Widget build(BuildContext context) {
-    return TextField(
+    return TextFormField(
+      initialValue: widget.value,
       onChanged: (value) {
         widget.onChanged(value);
         inputValue = value;
@@ -114,7 +115,7 @@ class TtextfieldEmail extends StatefulWidget {
 class _TtextfieldEmailState extends State<TtextfieldEmail> {
   @override
   Widget build(BuildContext context) {
-    return TextField(
+    return TextFormField(
       onChanged: (value) {
         widget.onChanged(value);
       },

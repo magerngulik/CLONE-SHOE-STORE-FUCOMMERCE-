@@ -25,6 +25,37 @@ class ProductService {
     });
   }
 
+  static updateProduct(Product product) async {
+    await FirebaseFirestore.instance
+        .collection("products")
+        .doc(product.id)
+        .update({
+      "product_name": product.productName,
+      "photo": product.photo,
+      "price": product.price,
+      "description": product.description,
+      "seller": {
+        "uid": FirebaseAuth.instance.currentUser!.uid,
+        "seller_name": FirebaseAuth.instance.currentUser!.displayName
+      },
+      "galleries": [
+        "https://i.ibb.co/S32HNjD/no-image.jpg",
+        "https://i.ibb.co/PGv8ZzG/me.jpg",
+        "https://i.ibb.co/S32HNjD/no-image.jpg",
+      ],
+      "qty": product.qty,
+      "brand": product.brand,
+      "category": product.category
+    });
+  }
+
+  static deleteProduct(Product product) async {
+    await FirebaseFirestore.instance
+        .collection("products")
+        .doc(product.id)
+        .delete();
+  }
+
   static var products = [
     Product(
         id: "1",

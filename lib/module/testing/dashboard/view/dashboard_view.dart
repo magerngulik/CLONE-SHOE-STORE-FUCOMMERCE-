@@ -23,13 +23,11 @@ class _DashboardViewState extends ConsumerState<DashboardView> {
         child: Scaffold(
           body: IndexedStack(
             index: selectedIndex,
-            children: [
-              const HomeView(),
-              const DevHomeView(),
-              Container(
-                color: Colors.purple[100],
-              ),
-              const ProfiletestingingView()
+            children: const [
+              HomeView(),
+              CartView(),
+              OrderListView(),
+              ProfiletestingingView()
             ],
           ),
           bottomNavigationBar: BottomNavigationBar(

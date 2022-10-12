@@ -11,6 +11,13 @@ class HomeController extends ChangeNotifier implements HyperController {
     selectedProductCategoryName = productCategoryName;
     notifyListeners();
   }
+
+  String search = "";
+
+  updateSearch(value) {
+    search = value;
+    update();
+  }
 }
 
 final homeController = ChangeNotifierProvider<HomeController>((ref) {

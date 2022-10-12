@@ -1,3 +1,5 @@
+import 'package:cached_network_image/cached_network_image.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:fhe_template/core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -79,7 +81,9 @@ class HomeView extends ConsumerWidget {
                                 fillColor: Colors.transparent,
                                 hintText: "Search",
                               ),
-                              onChanged: (value) {},
+                              onChanged: (value) {
+                                controller.updateSearch(value);
+                              },
                             ),
                           ),
                         ],
@@ -115,7 +119,7 @@ class HomeView extends ConsumerWidget {
                         if (index == 0) ...[
                           InkWell(
                             onTap: () {
-                              controller.updateSelectedProductCategory("All");
+                              // controller.updateSelectedProductCategory("All");
                             },
                             child: Container(
                               width: 100.0,
@@ -182,159 +186,190 @@ class HomeView extends ConsumerWidget {
               ),
               SizedBox(
                 height: MediaQuery.of(context).size.height,
-                child: ListView.builder(
-                  itemCount: ProductService.products.length,
-                  itemBuilder: (context, index) {
-                    var items = ProductService.products[index];
-                    return Card(
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(16.0),
-                      ),
-                      child: Row(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        mainAxisAlignment: MainAxisAlignment.start,
-                        children: [
-                          Stack(
-                            children: [
-                              Padding(
-                                padding: const EdgeInsets.symmetric(
-                                    vertical: 10.0, horizontal: 10),
-                                child: Container(
-                                  height: 120.0,
-                                  width: 100.0,
-                                  decoration: BoxDecoration(
-                                    image: DecorationImage(
-                                      image: NetworkImage(
-                                        "${items.photo}",
-                                      ),
-                                      fit: BoxFit.cover,
-                                    ),
-                                    borderRadius: const BorderRadius.all(
-                                      Radius.circular(
-                                        16.0,
-                                      ),
-                                    ),
-                                  ),
-                                ),
-                              ),
-                              Positioned(
-                                right: 15,
-                                top: 15,
-                                child: CircleAvatar(
-                                  radius: 18,
-                                  backgroundColor: Colors.white,
-                                  child: IconButton(
-                                    onPressed: () {},
-                                    icon: const Icon(
-                                      Icons.favorite,
-                                      size: 18,
-                                    ),
-                                  ),
-                                ),
-                              ),
-                            ],
-                          ),
-                          const SizedBox(
-                            width: 10.0,
-                          ),
-                          Expanded(
-                            child: Column(
+                child: StreamBuilder<QuerySnapshot>(
+                  stream: FirebaseFirestore.instance
+                      .collection("products")
+                      .snapshots(),
+                  builder: (context, snapshot) {
+                    if (snapshot.hasError) return const Text("Error");
+                    if (snapshot.data == null) return Container();
+                    if (snapshot.data!.docs.isEmpty) {
+                      return const Text("No Data");
+                    }
+                    final data = snapshot.data!;
+
+                    return ListView.builder(
+                      itemCount: data.docs.length,
+                      itemBuilder: (context, index) {
+                        Map<String, dynamic> item = snapshot.data!.docs[index]
+                            .data() as Map<String, dynamic>;
+                        item["id"] = data.docs[index].id;
+                        var items = Product.fromJson(item);
+
+                        if (controller.search.isNotEmpty) {
+                          var search = controller.search.toLowerCase();
+                          var productName = items.productName!.toLowerCase();
+                          if (!productName.contains(search)) {
+                            return Container();
+                          }
+                        }
+
+                        return InkWell(
+                          onTap: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                  builder: (context) =>
+                                      ProductDetailView(items)),
+                            );
+                          },
+                          child: Card(
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(16.0),
+                            ),
+                            child: Row(
                               crossAxisAlignment: CrossAxisAlignment.start,
+                              mainAxisAlignment: MainAxisAlignment.start,
                               children: [
-                                const SizedBox(
-                                  height: 10.0,
-                                ),
-                                Text(
-                                  "${items.productName}",
-                                  style: const TextStyle(
-                                    fontSize: 20.0,
-                                    fontWeight: FontWeight.bold,
-                                  ),
-                                ),
-                                Row(
+                                Stack(
                                   children: [
-                                    const Text(
-                                      "By",
-                                      style: TextStyle(
-                                        fontSize: 12.0,
-                                        color: Colors.grey,
+                                    Padding(
+                                      padding: const EdgeInsets.symmetric(
+                                          vertical: 10.0, horizontal: 10),
+                                      child: Container(
+                                        height: 120.0,
+                                        width: 100.0,
+                                        decoration: BoxDecoration(
+                                          image: DecorationImage(
+                                            image: CachedNetworkImageProvider(
+                                              "${items.photo}",
+                                            ),
+                                            fit: BoxFit.cover,
+                                          ),
+                                          borderRadius: const BorderRadius.all(
+                                            Radius.circular(
+                                              16.0,
+                                            ),
+                                          ),
+                                        ),
                                       ),
                                     ),
-                                    const SizedBox(
-                                      width: 5.0,
-                                    ),
-                                    Text(
-                                      "${items.seller!.sellerName}",
-                                      style: const TextStyle(
-                                        fontSize: 12.0,
-                                        fontWeight: FontWeight.bold,
+                                    Positioned(
+                                      right: 15,
+                                      top: 15,
+                                      child: CircleAvatar(
+                                        radius: 18,
+                                        backgroundColor: Colors.white,
+                                        child: IconButton(
+                                          onPressed: () {},
+                                          icon: const Icon(
+                                            Icons.favorite,
+                                            size: 18,
+                                          ),
+                                        ),
                                       ),
                                     ),
                                   ],
                                 ),
                                 const SizedBox(
-                                  height: 5.0,
+                                  width: 10.0,
                                 ),
-                                Text(
-                                  "${items.description}",
-                                  overflow: TextOverflow.ellipsis,
-                                  maxLines: 2,
-                                  style: const TextStyle(
-                                    fontSize: 12.0,
-                                    color: Colors.grey,
-                                  ),
-                                ),
-                                const SizedBox(
-                                  height: 10.0,
-                                ),
-                                Row(
-                                  children: [
-                                    Text(
-                                      "Rp. ${items.price}",
-                                      style: const TextStyle(
-                                        fontSize: 18.0,
-                                        fontWeight: FontWeight.bold,
+                                Expanded(
+                                  child: Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      const SizedBox(
+                                        height: 10.0,
                                       ),
-                                    ),
-                                    const Spacer(),
-                                    ElevatedButton(
-                                      style: ElevatedButton.styleFrom(
-                                        backgroundColor: Colors.orange,
-                                        shape: RoundedRectangleBorder(
-                                          borderRadius: BorderRadius.circular(
-                                              20), // <-- Radius
-                                        ),
-                                      ),
-                                      onPressed: () {
-                                        Navigator.push(
-                                          context,
-                                          MaterialPageRoute(
-                                              builder: (context) =>
-                                                  ProductDetailView(items)),
-                                        );
-                                      },
-                                      child: const Text(
-                                        "Buy",
-                                        style: TextStyle(
+                                      Text(
+                                        "${items.productName}",
+                                        style: const TextStyle(
+                                          fontSize: 20.0,
                                           fontWeight: FontWeight.bold,
-                                          color: Colors.white,
                                         ),
                                       ),
-                                    ),
-                                    const SizedBox(
-                                      width: 10.0,
-                                    ),
-                                  ],
+                                      Row(
+                                        children: [
+                                          const Text(
+                                            "By",
+                                            style: TextStyle(
+                                              fontSize: 12.0,
+                                              color: Colors.grey,
+                                            ),
+                                          ),
+                                          const SizedBox(
+                                            width: 5.0,
+                                          ),
+                                          Text(
+                                            "${items.seller!.sellerName}",
+                                            style: const TextStyle(
+                                              fontSize: 12.0,
+                                              fontWeight: FontWeight.bold,
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                      const SizedBox(
+                                        height: 5.0,
+                                      ),
+                                      Text(
+                                        "${items.description}",
+                                        overflow: TextOverflow.ellipsis,
+                                        maxLines: 2,
+                                        style: const TextStyle(
+                                          fontSize: 12.0,
+                                          color: Colors.grey,
+                                        ),
+                                      ),
+                                      const SizedBox(
+                                        height: 10.0,
+                                      ),
+                                      Row(
+                                        children: [
+                                          Text(
+                                            "Rp. ${items.price}",
+                                            style: const TextStyle(
+                                              fontSize: 18.0,
+                                              fontWeight: FontWeight.bold,
+                                            ),
+                                          ),
+                                          const Spacer(),
+                                          ElevatedButton(
+                                            style: ElevatedButton.styleFrom(
+                                              backgroundColor: Colors.orange,
+                                              shape: RoundedRectangleBorder(
+                                                borderRadius:
+                                                    BorderRadius.circular(
+                                                        20), // <-- Radius
+                                              ),
+                                            ),
+                                            onPressed: () {},
+                                            child: const Text(
+                                              "Buy",
+                                              style: TextStyle(
+                                                fontWeight: FontWeight.bold,
+                                                color: Colors.white,
+                                              ),
+                                            ),
+                                          ),
+                                          const SizedBox(
+                                            width: 10.0,
+                                          ),
+                                        ],
+                                      ),
+                                    ],
+                                  ),
                                 ),
                               ],
                             ),
                           ),
-                        ],
-                      ),
+                        );
+                      },
                     );
                   },
                 ),
-              ),
+              )
             ],
           ),
         ),

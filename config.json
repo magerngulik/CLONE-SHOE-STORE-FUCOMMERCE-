@@ -1,0 +1,17 @@
+{
+    "modules": [
+        "testing/dashboard",
+        "testing/welcome",
+        "testing/home",
+        "testing/productDetail",
+        "testing/devHome",
+        "conten/navigator",
+        "conten/homeScreen",
+        "conten/welcomeScreen",
+        "conten/welcomeSliderScreen",
+        "testing/testingWidget",
+        "testing/profiletesting",
+        "testing/addProduct"
+
+    ]
+}
